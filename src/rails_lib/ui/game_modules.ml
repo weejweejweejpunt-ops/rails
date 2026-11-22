@@ -219,7 +219,7 @@ let list_logging_modules () =
   Printf.printf "Available logging modules (%d total):\n" (List.length names);
   List.iter (fun name -> Printf.printf "  - %s\n" name) names
 
-let run ?(debug = false) ?(debug_modules = []) ?load ?zoom ~adjust_ar ~audio ~shader () : unit =
+let run ?(debug = false) ?(debug_modules = []) ?load ?start_region ?zoom ~adjust_ar ~audio ~shader () : unit =
   setup_logging ~debug ~debug_modules ();
 
   Printf.printf "Loading resources...";
@@ -243,8 +243,20 @@ let run ?(debug = false) ?(debug_modules = []) ?load ?zoom ~adjust_ar ~audio ~sh
       | None ->
         (* New game. Use a basic default state *)
         let s = default_state win sound in
-        let state = Intro.make s in
-        {s with mode=Intro state}
+        begin match Option.flat_map Region.of_enum start_region with
+        | Some region ->
+            (* Developer shortcut (--region N): skip the intro and the start menu *)
+            let s = make_state win sound ~region ~reality_levels:B_options.reality_levels_default
+              ~difficulty:B_options.default_difficulty s in
+            let cities = B.get_cities s.backend in
+            let map = Mapgen.generate_headless s.backend.random region cities (B.get_map s.backend) in
+            let s = {s with backend = {s.backend with map}} in
+            update_map win s map;
+            {s with mode=Game}
+        | None ->
+            let state = Intro.make s in
+            {s with mode=Intro state}
+        end
     in
     Printf.printf " done.\n";
 

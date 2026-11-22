@@ -310,7 +310,7 @@ module Info = struct
     let tbl = match region with
       | Region.WestUS | EastUS -> us_tbl
       | Europe -> eu_tbl
-      | Britain -> en_tbl
+      | Britain | Netherlands -> en_tbl
     in
     try
       TileHashtbl.find tbl tile
@@ -321,7 +321,7 @@ module Info = struct
     let list = match region with
       | Region.WestUS | EastUS -> us_list
       | Europe -> eu_list
-      | Britain -> en_list
+      | Britain | Netherlands -> en_list
     in
     list
     |> List.filter (fun (tile, _) -> is_buildable tile)

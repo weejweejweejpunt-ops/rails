@@ -190,7 +190,7 @@ let tile_of_pixel_xy x y ~region ~pixel v =
   let complex_mapping pixel xy_random =
     (* xy_random is 0-3 *)
     match region with
-    | Region.Britain -> begin match pixel, xy_random with
+    | Region.Britain | Netherlands -> begin match pixel, xy_random with
       | Clear_pixel, 0 -> Tile.GlassWorks
       | Clear_pixel, 3 -> SheepFarm
       | Foothills_pixel, 1 -> TextileMill
@@ -243,7 +243,7 @@ let tile_of_pixel_xy x y ~region ~pixel v =
       let y = y / 2 + next_2bits in
       if x land 2 = y land 3 then match region with
         | Europe -> Tile.SheepFarm
-        | Britain -> SaltMine
+        | Britain | Netherlands -> SaltMine
         | _ -> OilWell
       else if Region.is_us region && x land 3 = y land 3 then LumberMill
       else CoalMine
@@ -288,7 +288,11 @@ let update_heightmap v =
   {v with heightmap}
 
 let ndarray_of_file filename =
-  let arr = Pic.ndarray_of_file filename in
+  let arr =
+    if String.equal (String.lowercase_ascii (Filename.extension filename)) ".png"
+    then Pic.ndarray_of_png filename
+    else Pic.ndarray_of_file filename
+  in
   (* All maps are 256*192 *)
   let ndarray = Ndarray.get_slice [[0;map_height_default-1]; [0;map_width_default-1]] arr in
   ndarray

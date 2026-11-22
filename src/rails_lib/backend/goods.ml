@@ -95,7 +95,7 @@ let europe = [
 let of_region = function
   | Region.WestUS | EastUS -> us
   | Europe -> europe
-  | Britain -> england
+  | Britain | Netherlands -> england
 
   (* Conversion tables:
     Each region can only convert one good to one other good.
@@ -133,7 +133,7 @@ let convert region goods =
     match region with
     | Region.WestUS | EastUS -> us_convert
     | Europe -> eu_convert
-    | Britain -> en_convert
+    | Britain | Netherlands -> en_convert
   in
   Hashtbl.find_opt tbl goods
 

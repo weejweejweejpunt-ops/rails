@@ -1047,7 +1047,11 @@ let handle_msgs (s:State.t) v ui_msgs =
     | _ -> None
   in
   let make_news ?(background=Normal) state = Newspaper {state; background} in
+  let skip_news = Option.is_some (Sys.getenv_opt "RAILS_SKIP_NEWS") in (* developer shortcut *)
   let handle_msg v ui_msg =
+    match ui_msg with
+    | Ui_msg.NewCompany _ | AiConnected _ | NewPlayerCompany _ when skip_news -> v
+    | _ ->
     match v.mode with 
     | BuildTrain(`AddCars _) ->
       begin match ui_msg with

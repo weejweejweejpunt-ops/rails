@@ -87,6 +87,29 @@ let ndarray_of_file filename : ndarray =
   let stream = Utils.stream_of_file filename in
   interpret_stream stream
 
+(* A map stored as an ordinary PNG that only uses the 16 EGA colours.
+   Used for maps that were not in the original game, e.g. the Netherlands.
+   Returns the same 0-15 palette indices that a .PIC file would give. *)
+let ndarray_of_png filename : ndarray =
+  let img = ImageLib_unix.openfile filename in
+  let arr = Ndarray.empty Int8_unsigned [|img.height; img.width|] in
+  let nearest r g b =
+    let best = ref 0 and best_d = ref max_int in
+    for i = 0 to 15 do
+      let r2, g2, b2 = Ega.get_rgb i in
+      let d = (r - r2) * (r - r2) + (g - g2) * (g - g2) + (b - b2) * (b - b2) in
+      if d < !best_d then (best := i; best_d := d)
+    done;
+    !best
+  in
+  for y = 0 to img.height - 1 do
+    for x = 0 to img.width - 1 do
+      let r, g, b = Image.read_rgba img x y (fun r g b _ -> (r, g, b)) in
+      Ndarray.set arr [|y; x|] (nearest r g b)
+    done
+  done;
+  arr
+
 let translate_ega ~transparent arr ~f ~w ~h =
   for y=0 to h-1 do
     for x=0 to w-1 do

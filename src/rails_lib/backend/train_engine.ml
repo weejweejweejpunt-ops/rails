@@ -114,9 +114,32 @@ let eu_engines =
     make TGV Diesel "TresGrandVitesse" 160 8000 150000 1978 0;
   ]
 
+let nl_engines =
+  (* Netherlands: the first Dutch locomotives (De Arend, 1839) were British, so the English engines
+     come first; from 1905 on the continental engines of the Europe area follow. *)
+  [
+    make Planet SteamBig "2-2-0 Planet" 20 500 10000 1820 15;
+    make Patentee SteamBig "2-2-2 De Arend" 30 1000 20000 1835 14;
+    make IronDuke SteamBig "4-2-2 Iron Duke" 40 1500 30000 1845 13;
+    make DxGoods SteamBig "0-6-0 DX Goods" 25 2500 30000 1855 12;
+    make Stirling SteamBig "4-2-2 Stirling" 45 2000 40000 1870 11;
+    make MidlandSpinner SteamBig "4-2-2 Spinner" 50 2500 50000 1880 10;
+    make WebbCompound SteamBig "0-8-0 Compound" 40 3000 50000 1890 9;
+    make ClaudHamilton SteamBig "4-4-0 Hamilton" 60 2500 60000 1900 8;
+    make A1Class SteamBig "4-6-2 Gresley" 45 4000 60000 1905 7;
+    make A4Class SteamBig "4-6-2 Class A4" 70 3500 70000 1915 6;
+    make ClassCrocodile Diesel "6/6 Crocodile" 40 5000 50000 1925 5;
+    make ClassE18 Diesel "Class E18 1-D-1" 80 5000 80000 1935 4;
+    make R242A1 SteamBig "4-8-4 242 A1" 60 6000 70000 1945 3;
+    make V200BB Diesel "V200 B-B" 90 6000 100000 1955 2;
+    make BoBoBo Diesel "Re 6/6 B-B-B" 70 7000 100000 1968 1;
+    make TGV Diesel "TresGrandVitesse" 160 8000 150000 1978 0;
+  ]
+
 let of_region = function
   | Region.WestUS | EastUS -> us_engines
   | Britain -> en_engines
+  | Netherlands -> nl_engines
   | Europe -> eu_engines
 
 let randomize_year rand engines =

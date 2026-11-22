@@ -20,6 +20,7 @@ let pixel_apply_mountain = function
 
   (* Create a list of random mountains to add to the map, based on region *)
 let add_mountains_list r region =
+  if Region.equal region Region.Netherlands then [] else
   (* Standard mountains *)
   let rec standard_range_loop j acc =
     if j >= 384 then acc
@@ -155,16 +156,20 @@ let add_mountains_list r region =
      This particular function needs to access the map, and since resources can only 
      be in certain tiles, it may fail and need to try again and again.
    *)
-let add_resource region ~map ~land_pixel ~resource_pixel ~wanted_tile ~r =
-  let rec loop () =
-    let x = Random.int 256 r in
-    let y = Random.int 192 r in
-    let x = match region with
+let add_resource ?area region ~map ~land_pixel ~resource_pixel ~wanted_tile ~r =
+  let max_tries = match area with None -> max_int | Some _ -> 20_000 in
+  let rec loop tries =
+    if tries >= max_tries then None else
+    let x, y = match area with
+      | None -> Random.int 256 r, Random.int 192 r
+      | Some (x0, y0, x1, y1) -> x0 + Random.int (x1 - x0 + 1) r, y0 + Random.int (y1 - y0 + 1) r
+    in
+    let x = if Option.is_some area then x else match region with
       | Region.EastUS -> x + Random.int (319 - x) r 
       | WestUS when x >= 120 -> x + Random.int (255 - x) r
       | WestUS -> x - Random.int x r
       | Britain -> x + Random.int (160 - x) r
-      | Europe -> x
+      | Europe | Netherlands -> x
     in
     let rec attempt i x y =
       (* In the game, we just intrude into the black border and nothing happens.
@@ -180,10 +185,10 @@ let add_resource region ~map ~land_pixel ~resource_pixel ~wanted_tile ~r =
         attempt (i + 1) x (y + 1)
     in
     match attempt 0 x y with
-    | None -> loop ()
+    | None -> loop (tries + 1)
     | x -> x
   in
-  loop () |> Option.get_exn_or "Impossible failure reached"
+  loop 0
 
 type res_data = {
   land_pixel: pixel;
@@ -193,10 +198,11 @@ type res_data = {
   name: string;
   text_y: int; (* y coordinate of text *)
   start: bool; (* flag to know we've started *)
+  area: (int * int * int * int) option; (* x0, y0, x1, y1: only place inside this rectangle *)
 }
 
-let make land_pixel resource_pixel wanted_tile num name text_y =
-  {land_pixel; resource_pixel; wanted_tile; num; name; text_y; start=true}
+let make ?area land_pixel resource_pixel wanted_tile num name text_y =
+  {land_pixel; resource_pixel; wanted_tile; num; name; text_y; start=true; area}
 
   (* A general list of resources to add *)
 let add_resources_list region =
@@ -212,6 +218,17 @@ let add_resources_list region =
       [ 
         make Foothills_pixel CoalMine_pixel CoalMine count "Coal Mines" 32; 
         make Clear_pixel OilWell_pixel SaltMine count "Salt Mines" 64; 
+      ]
+  | Netherlands ->
+      (* Rectangles are in tiles (see tools/netherlands/geo.py for the projection). *)
+      [
+        make ~area:(145, 168, 160, 183) Foothills_pixel CoalMine_pixel CoalMine 6 "Coal Mines" 32;   (* Zuid-Limburg *)
+        make ~area:(156, 174, 172, 185) Foothills_pixel CoalMine_pixel CoalMine 3 "Coal Mines" 32;   (* Aachen *)
+        make ~area:(126, 163, 142, 176) Clear_pixel CoalMine_pixel CoalMine 3 "Coal Mines" 32;       (* Limburg (B) *)
+        make ~area:(184, 132, 214, 145) Clear_pixel CoalMine_pixel CoalMine 6 "Coal Mines" 32;       (* Ruhr *)
+        make ~area:(182, 82, 192, 91) Clear_pixel OilWell_pixel SaltMine 3 "Salt Mines" 64;          (* Twente *)
+        make ~area:(178, 24, 194, 37) Clear_pixel OilWell_pixel SaltMine 3 "Salt Mines" 64;          (* Groningen *)
+        make ~area:(126, 24, 134, 34) Clear_pixel OilWell_pixel SaltMine 2 "Salt Mines" 64;          (* Harlingen *)
       ]
   | Europe ->
       let count = 150 in
@@ -229,7 +246,9 @@ let pixel_apply_city = function
   | x -> x
 
 let add_city_list r region (city_list:(int * int * string) list) : (int * int) list =
+  let idx = ref (-1) in (* position in the list *)
   let add_city (factor, acc) (x,y,_) =
+    incr idx;
     (* add all cities as villages *)
     let acc =
       (* Amazingly, some cities seem to be out of bounds and they let the population expand into the map *)
@@ -250,6 +269,10 @@ let add_city_list r region (city_list:(int * int * string) list) : (int * int) l
           ((x + y) * 3) / 4 + 32
       | Europe ->
           700 - (x + y) / 3
+      | Netherlands ->
+          (* CITIES4.DTA is sorted by population, so the list index is a population rank:
+             the big cities get the most extra population around them *)
+          400 - !idx * 2
     in
     let x_y_func = Utils.clip x_y_func ~min:0 ~max:767 in
     let max_val = x_y_func / 16 + factor / 4 in
@@ -283,6 +306,7 @@ let load_city_list region  =
   let filename = Engine.Paths.data_file (Printf.sprintf "CITIES%d.DTA" num) in
   let str = CCIO.with_in ~flags:[Open_binary] filename CCIO.read_all in
   let stream = Gen.of_string str in
+  let num_cities = String.length str / 20 in (* 100 in the original files *)
   let parse acc _ =
     let x = My_gen.get_word stream in
     let y = My_gen.get_word stream in
@@ -292,7 +316,7 @@ let load_city_list region  =
     (* Original y value is +8 for menu. Remove it *)
     (name, x, y-8)::acc
   in
-  let cities = Iter.fold parse [] Iter.(0 -- 99) |> List.rev in
+  let cities = Iter.fold parse [] Iter.(0 -- (num_cities - 1)) |> List.rev in
   cities
 
 module IntIntMap = Map.Make(struct type t = int * int let compare = Stdlib.compare end)
@@ -340,11 +364,14 @@ let update_map_step r v ~map ~fonts ~done_fn =
       begin match v.resources with
       | {num=0; _}::rest ->
           {v with resources=rest}, map
-      | ({land_pixel; resource_pixel; wanted_tile;_} as res)::rest ->
-          let x, y =
-            add_resource v.region ~map ~land_pixel ~resource_pixel ~wanted_tile ~r
+      | ({land_pixel; resource_pixel; wanted_tile; area; _} as res)::rest ->
+          let placed =
+            add_resource ?area v.region ~map ~land_pixel ~resource_pixel ~wanted_tile ~r
           in
-          let new_pixels = IntIntMap.add (x, y) resource_pixel v.new_pixels in
+          let new_pixels = match placed with
+            | Some (x, y) -> IntIntMap.add (x, y) resource_pixel v.new_pixels
+            | None -> v.new_pixels
+          in
           let text, start =
             if res.start then
               let text = write ~y:res.text_y ~text:v.text ~str:("Adding\n"^res.name) in
@@ -374,6 +401,26 @@ let update_map_step r v ~map ~fonts ~done_fn =
       end
   | `Done ->
            v, map
+
+(* Run every map generation step at once, without any UI.
+   Used by tools/tests that want the finished map (mountains, resources, cities). *)
+let generate_headless r region (cities:(int * int * string) list) map =
+  let v = init r region cities in
+  List.iter (fun (x, y) ->
+    let pixel = Tilemap.get_pixel_xy x y map |> pixel_apply_mountain in
+    Tilemap.set_pixel_xy x y ~region ~pixel map)
+  v.mountains;
+  List.iter (fun res ->
+    for _ = 1 to res.num do
+      add_resource ?area:res.area region ~map ~land_pixel:res.land_pixel
+        ~resource_pixel:res.resource_pixel ~wanted_tile:res.wanted_tile ~r |> ignore
+    done)
+  v.resources;
+  List.iter (fun (x, y) ->
+    let pixel = Tilemap.get_pixel_xy x y map |> pixel_apply_city in
+    Tilemap.set_pixel_xy x y ~region ~pixel map)
+  v.cities;
+  Tilemap.update_heightmap map
 
 module View = struct
 

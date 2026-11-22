@@ -9,7 +9,8 @@ let map_names =
     EastUS, "EASTUS.PIC";
     WestUS, "WESTUS.PIC";
     Britain, "BRITAIN.PIC";
-    Europe, "EUROPE.PIC"
+    Europe, "EUROPE.PIC";
+    Netherlands, "NETHERLANDS.png";
   ]
 
 let load_pics () =
@@ -30,6 +31,7 @@ let load_pics () =
     "PAGE5.PIC"; "PAGE6.PIC"; "PAGE7.PIC"; "PAGE8.PIC"; "PAGE9.PIC";
     "TITLE.PIC";
     "DIFFS.PIC"; "DIFFSP.PIC"; "COUNCIL.PIC";
+    "NETHERLANDS_MENU.png";
   ] in
   let images = Hashtbl.create 20 in
   List.iter (fun s ->
@@ -52,6 +54,29 @@ type t = {
   res_cities: (Region.t * (string * int * int) list) list;
 }
 
+(* The start-menu background (DIFFS.PIC) shows a board with room for four area names.
+   The Netherlands needs a fifth line, so the board's top edge is moved up: the old top border is
+   copied [menu_board_extra_height] rows higher and the gap is filled with board interior.
+   (Pixel coordinates were measured on the original DIFFS.PIC: the board spans x 42-137, its top
+   border is rows 22-26 and its interior starts at row 27.) *)
+let menu_board_extra_height = 10
+
+let extend_menu_board (img: Pic.ndarray) =
+  let x0, x1 = 42, 137 in
+  let border_top, border_bottom = 22, 26 in
+  let interior_row = 30 in
+  let dy = menu_board_extra_height in
+  for x = x0 to x1 do
+    for c = 0 to 3 do
+      for y = border_top to border_bottom do
+        Ndarray.set img [|y - dy; x; c|] (Ndarray.get img [|y; x; c|])
+      done;
+      for y = border_top - dy + (border_bottom - border_top + 1) to border_bottom do
+        Ndarray.set img [|y; x; c|] (Ndarray.get img [|interior_row; x; c|])
+      done
+    done
+  done
+
 let load_all () =
   let res_maps =
     List.map (fun (region,s) -> region, Paths.data_file s
@@ -61,6 +86,7 @@ let load_all () =
     List.combine Region.regions
   in
   let res_pics = load_pics () in
+  Hashtbl.find_opt res_pics "DIFFS" |> Option.iter extend_menu_board;
   {res_maps; res_pics; res_cities}
 
 module Dir = Engine.Dir

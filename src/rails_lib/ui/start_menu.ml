@@ -19,7 +19,11 @@ let padding = {
   right=(-2);
 }
 
-let x, y = 50, 39
+(* The board on the wall holds the menu text. The Netherlands is a fifth area, so the board was made
+   taller at the top (Resources.extend_menu_board) and the text moves up by the same amount. *)
+let menu_up = Resources.menu_board_extra_height
+let x, y = 50, 39 - menu_up
+let heading_y = 30 - menu_up
 
 let action_menu fonts s =
   let open Menu.MsgBox in
@@ -107,15 +111,15 @@ let render win v (s:State.t) =
 
   begin match v.mode with
   | Action menu ->
-      write ~x:54 ~y:30 "Will you  ...";
+      write ~x:54 ~y:heading_y "Will you  ...";
       Menu.MsgBox.render win s menu
   | LoadGame state ->
       Load_game.render win s state
   | Region menu ->
-      write ~x:54 ~y:30 "Select area...";
+      write ~x:54 ~y:heading_y "Select area...";
       Menu.MsgBox.render win s menu
   | Difficulty menu ->
-      write ~x:54 ~y:30 "Are you an...";
+      write ~x:54 ~y:heading_y "Are you an...";
       Menu.MsgBox.render win s menu;
   | Reality state ->
       Menu.MsgBox.render win s state.menu;

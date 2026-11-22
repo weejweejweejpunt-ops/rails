@@ -9,6 +9,14 @@ venv/
 !packaging/*.icns
 !data/SPRITES_extra.png
 !data/TRACKS_extra.png
-data/
+data/*
 game*.sav
 hof.dat
+
+# Netherlands region: our own generated assets are not original game files
+!data/NETHERLANDS.png
+!data/NETHERLANDS_MENU.png
+!data/CITIES4.DTA
+# downloaded source data for tools/netherlands
+geodata/
+__pycache__/

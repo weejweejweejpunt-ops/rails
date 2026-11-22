@@ -175,7 +175,7 @@ module TileTex = struct
         | Localized x ->
             match region with
             | Region.WestUS | EastUS -> find x.us
-            | Britain -> find x.england
+            | Britain | Netherlands -> find x.england
             | Europe -> find x.europe
       in
       find v
@@ -1021,6 +1021,7 @@ module Misc = struct
       Hashtbl.replace hash key tex
     in
 
+    tex (`MainMenu Region.Netherlands) "NETHERLANDS_MENU";
     tex `MainMenuBackground "DIFFS";
     tex `LogoMPS "LABS";
     tex `LogoMicroprose "LOGO";

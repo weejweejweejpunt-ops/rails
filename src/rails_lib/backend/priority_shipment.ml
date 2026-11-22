@@ -85,7 +85,7 @@ let create_text shipment (region:Region.t) station_map =
   let type_s = match shipment.freight, region with
     | `Mail, _ -> "Rare vaccine required."
     | `Passenger, _ -> "Congressional junket."
-    | `Fast, Britain -> "Championship soccer game."
+    | `Fast, (Britain | Netherlands) -> "Championship soccer game."
     | `Fast, _ -> "New strawberry crop."
     | `Slow, _ -> "Mine rescue equipment."
     | `Bulk, _ -> "Heating fuel emergency."

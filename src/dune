@@ -15,6 +15,13 @@
  (modes exe)
  )
 
+(executable
+ (name dump_map)
+ (modules dump_map)
+ (libraries rails_lib containers)
+ (modes exe)
+ )
+
 (alias
   (name rails)
   (deps rails_run.exe))
