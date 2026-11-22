@@ -28,6 +28,19 @@ Precompiled packages are available on the [Releases](https://github.com/bluddy/r
 
 The game expects original game assets in `./data/` (or specified via `--data-dir <path>`).
 
+## Netherlands (extra area)
+
+Besides the four original areas, the start menu has a fifth one: **the whole Netherlands**, starting in
+1839 with the first Dutch railway (Amsterdam - Haarlem), money in guilders, on the map of that time (the
+Zuiderzee is still a sea, no Flevoland, no Afsluitdijk, no Deltawerken) with locomotives that fit the
+period. 98 Dutch places with 30 000+ inhabitants (Utrecht, Hengelo, Amsterdam, Haarlem, Wageningen,
+Delft ...) plus 14 big cities just across the border. The map comes from OpenStreetMap, GeoNames and SRTM-derived elevation data, so it
+needs no original game files of its own; see [tools/netherlands/README.md](tools/netherlands/README.md).
+
+```bash
+dune exec rails -- --region 4   # start straight in the Netherlands (developer shortcut)
+```
+
 ## Installation from Source
 
 ```bash

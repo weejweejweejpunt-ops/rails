@@ -51,6 +51,8 @@
 
 ## Feature List for 1.0+
 
+- [x] Netherlands area (OpenStreetMap-based 1839 map, 112 places, Dutch locomotive list) - see tools/netherlands
+
 - [ ] Externalize constants to JSON files.
 - [ ] Duplicate all graphics.
 - [ ] Raise resolution.
