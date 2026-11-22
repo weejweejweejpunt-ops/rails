@@ -19,4 +19,6 @@ let () =
   Train_engine.of_region region |> Train_engine.randomize_year random
   |> Train_engine.available_at_year ~year
   |> List.iter (fun (e:Train_engine.t) -> Printf.printf "  %d: %s (%d)\n" year e.name e.year);
+  List.init 4 (fun _ -> Opponent.random_of_region region random |> Opponent.show_name)
+  |> String.concat ", " |> Printf.printf "  competitors: %s\n";
   Engine.Pic.png_of_ndarray (Tilemap.to_ndarray map.Tilemap.map) ~filename:out

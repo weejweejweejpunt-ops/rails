@@ -24,6 +24,19 @@ type name =
   | GeorgeSHudson
   | HelmuthVonMoltke
   | BaronRothschild
+  (* Dutch leaders, used in the Netherlands area (they share the portraits of the others) *)
+  | KoningWillemI
+  | KoningWillemII
+  | JohanThorbecke
+  | PieterCaland
+  | CornelisLely
+  | CharlesStork
+  | PetrusRegout
+  | AntonPhilips
+  | GerardHeineken
+  | HenriDeterding
+  | AlbertPlesman
+  | AnthonyFokker
   [@@deriving yojson, ord, eq]
 
 let show_name = function
@@ -49,6 +62,18 @@ let show_name = function
   | GeorgeSHudson -> "George S.Hudson"
   | HelmuthVonMoltke -> "Helmuth von Moltke"
   | BaronRothschild -> "Baron Rothschild"
+  | KoningWillemI -> "Koning Willem I"
+  | KoningWillemII -> "Koning Willem II"
+  | JohanThorbecke -> "Johan Thorbecke"
+  | PieterCaland -> "Pieter Caland"
+  | CornelisLely -> "Cornelis Lely"
+  | CharlesStork -> "Charles Stork"
+  | PetrusRegout -> "Petrus Regout"
+  | AntonPhilips -> "Anton Philips"
+  | GerardHeineken -> "Gerard Heineken"
+  | HenriDeterding -> "Henri Deterding"
+  | AlbertPlesman -> "Albert Plesman"
+  | AnthonyFokker -> "Anthony Fokker"
 
 type t = {
   name: name;
@@ -102,10 +127,30 @@ let eu_leaders = [
   BaronRothschild, (2, 4, 1, 3);
 ]
 
-let leader_map = us_leaders @ eu_leaders |> map_of_leaders
+  (* Dutch kings, statesmen, engineers and industrialists: (expansionist, financial, management, build) *)
+let nl_leaders = [
+  KoningWillemI, (3, 4, 1, 2);
+  KoningWillemII, (2, 2, 1, 1);
+  JohanThorbecke, (1, 2, 4, 1);
+  PieterCaland, (3, 0, 3, 4);
+  CornelisLely, (4, 1, 3, 4);
+  CharlesStork, (2, 2, 4, 3);
+  PetrusRegout, (3, 3, 2, 3);
+  AntonPhilips, (4, 3, 4, 1);
+  GerardHeineken, (2, 4, 1, 3);
+  HenriDeterding, (4, 4, 1, 2);
+  AlbertPlesman, (3, 1, 4, 2);
+  AnthonyFokker, (3, 0, 2, 4);
+]
+
+let leader_map = us_leaders @ eu_leaders @ nl_leaders |> map_of_leaders
 
 let random_of_region region random =
-  let leaders = if Region.is_us region then us_leaders else eu_leaders in
+  let leaders =
+    if Region.is_us region then us_leaders
+    else if Region.equal region Region.Netherlands then nl_leaders
+    else eu_leaders
+  in
   Random.pick_list leaders random |> fst
 
 let t_of_leader leader = Map.find leader leader_map

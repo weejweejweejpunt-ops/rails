@@ -856,6 +856,20 @@ module Opponents = struct
     tex ErastusCorning (incr_x x) y;
     tex JEdgarThompson (incr_x x) y;
     tex BaronRothschild (incr_x x) y;
+    (* Dutch leaders reuse the portraits above *)
+    let alias key from = Hashtbl.replace hash key (Hashtbl.find hash from) in
+    alias KoningWillemI GeorgeStephenson;
+    alias KoningWillemII BaronRothschild;
+    alias JohanThorbecke RobertStephenson;
+    alias PieterCaland JEdgarThompson;
+    alias CornelisLely ErastusCorning;
+    alias CharlesStork GeorgeSHudson;
+    alias PetrusRegout IsambardKBrunel;
+    alias AntonPhilips NapoleonIII;
+    alias GerardHeineken CorneliusVanderbilt;
+    alias HenriDeterding JPierpontMorgan;
+    alias AlbertPlesman HelmuthVonMoltke;
+    alias AnthonyFokker JimFisk;
     hash
 end
 

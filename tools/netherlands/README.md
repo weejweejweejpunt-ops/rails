@@ -16,6 +16,9 @@ coal. The locomotives are a Dutch list (`Train_engine.nl_engines`): the English 
 the first Dutch locomotives (De Arend, 1839) were British, then the continental engines of the Europe
 area from 1905 on. At the 1839 start the 2-2-0 Planet and 2-2-2 De Arend are available.
 
+Competitors are Dutch too (`Opponent.nl_leaders`): Koning Willem I and II, Thorbecke, Caland, Lely, Stork,
+Regout, Philips, Heineken, Deterding, Plesman and Fokker, drawn on the portraits of the original game.
+
 ## The 1839 map
 
 `history.py` undoes everything that is younger than the first railway: no Zuiderzee works (the
