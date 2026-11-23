@@ -38,8 +38,12 @@ Delft ...) plus 14 big cities just across the border. The map comes from OpenStr
 needs no original game files of its own; see [tools/netherlands/README.md](tools/netherlands/README.md).
 
 ```bash
-dune exec rails -- --region 4   # start straight in the Netherlands (developer shortcut)
+./play.sh                # fullscreen, intro and menu: pick "Netherlands" in the area menu
+./play.sh --region 4     # fullscreen, straight into the Netherlands
+dune exec rails -- --region 4   # same without play.sh
 ```
+
+`--fullscreen` starts fullscreen with any command; Alt+Enter toggles it while playing.
 
 ## Installation from Source
 

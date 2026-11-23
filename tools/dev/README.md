@@ -8,3 +8,4 @@
   `python3 tools/dev/xsend.py "Open Railroad Tycoon" space Return Down` and `import -window <id> shot.png`.
 * On some systems the game, `dump_map.exe` and `dune runtest` fail with "undefined symbol: glGenTextures":
   run them with `LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libGL.so.1`.
+* `../../play.sh` starts the game fullscreen: it sources `env.sh`, builds if needed, sets the `LD_PRELOAD` and passes its arguments on.

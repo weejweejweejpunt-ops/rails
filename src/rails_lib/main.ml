@@ -16,6 +16,7 @@ let zoom = ref (None : int option)
 let adjust_ar = ref true
 let shader = ref Renderer.Default
 let audio = ref true
+let fullscreen = ref false
 let debug_modules = ref []
 let list_modules = ref false
 let start_region = ref (None : int option)
@@ -45,6 +46,7 @@ let arglist =
     "--shader", String (fun s -> shader := Renderer.Named s), "Shader name (default: EGA shader matched to screen size, looks in shaders/*.glsl)";
     "--no-shader", Unit (fun () -> shader := Renderer.No_shader), "Disable shaders (raw pixels)";
     "--no-audio", Clear audio, "Disable audio";
+    "--fullscreen", Set fullscreen, "Start in fullscreen (Alt+Enter toggles it while playing)";
     "--region", Int (fun n -> start_region := Some n), "Start a new game directly in region N (0 East US, 1 West US, 2 England, 3 Europe, 4 Netherlands)";
     "--data-dir", String (fun s -> Unix.putenv "RAILS_DATA_DIR" s), "Path to directory containing game data files";
   ]
@@ -85,8 +87,8 @@ let main () =
   | `City -> Mapgen.load_city_list WestUS |> ignore
   | `Game ->
       check_data ();
-      Game_modules.run ~debug:!debugger ~debug_modules:!debug_modules ?start_region:!start_region ?zoom:!zoom ~adjust_ar:!adjust_ar ~audio:!audio ~shader:!shader ()
+      Game_modules.run ~debug:!debugger ~debug_modules:!debug_modules ?start_region:!start_region ?zoom:!zoom ~fullscreen:!fullscreen ~adjust_ar:!adjust_ar ~audio:!audio ~shader:!shader ()
   | `LoadGame ->
       check_data ();
-      Game_modules.run ~debug:!debugger ~debug_modules:!debug_modules ~load:!file_slot ?zoom:!zoom ~adjust_ar:!adjust_ar ~audio:!audio ~shader:!shader ()
+      Game_modules.run ~debug:!debugger ~debug_modules:!debug_modules ~load:!file_slot ?zoom:!zoom ~fullscreen:!fullscreen ~adjust_ar:!adjust_ar ~audio:!audio ~shader:!shader ()
 

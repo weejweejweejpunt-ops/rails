@@ -219,7 +219,7 @@ let list_logging_modules () =
   Printf.printf "Available logging modules (%d total):\n" (List.length names);
   List.iter (fun name -> Printf.printf "  - %s\n" name) names
 
-let run ?(debug = false) ?(debug_modules = []) ?load ?start_region ?zoom ~adjust_ar ~audio ~shader () : unit =
+let run ?(debug = false) ?(debug_modules = []) ?load ?start_region ?zoom ?(fullscreen=false) ~adjust_ar ~audio ~shader () : unit =
   setup_logging ~debug ~debug_modules ();
 
   Printf.printf "Loading resources...";
@@ -266,5 +266,5 @@ let run ?(debug = false) ?(debug_modules = []) ?load ?start_region ?zoom ~adjust
       render=render win;
     }
   in
-  Mainloop.main ?zoom ~adjust_ar init_fn ~shader
+  Mainloop.main ?zoom ~adjust_ar ~fullscreen init_fn ~shader
 

@@ -9,8 +9,9 @@ type 'a t = {
   render: 'a -> unit;
 }
 
-let main ?zoom ?(adjust_ar=false) ?(shader=R.No_shader) init_fn =
+let main ?zoom ?(adjust_ar=false) ?(shader=R.No_shader) ?(fullscreen=false) init_fn =
   let win = R.create 320 200 ?zoom ~adjust_ar ~shader in
+  if fullscreen then R.toggle_fullscreen win;
   let event = Sdl.Event.create () in
   let some_event = Some event in (* For reducing allocation with SDL *)
 
