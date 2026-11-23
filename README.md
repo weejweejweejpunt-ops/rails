@@ -44,6 +44,8 @@ dune exec rails -- --region 4   # same without play.sh
 ```
 
 `--fullscreen` starts fullscreen with any command; Alt+Enter toggles it while playing.
+By default the game draws a CRT look with scanlines; `./play.sh` switches that off for crisp pixels
+(`--no-shader`). Bring the scanlines back with `./play.sh --shader ega-1080p`.
 
 ## Installation from Source
 
